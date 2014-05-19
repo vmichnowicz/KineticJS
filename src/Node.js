@@ -199,7 +199,7 @@
             hitContext.translate(x * -1, y * -1);
 
             // don't need to translate canvas if shape is not added to layer
-            if (this.nodeType === 'Shape' && layer) {
+            if (this.nodeType === 'Shape') {
                 sceneContext.translate(this.x() * -1, this.y() * -1);
                 hitContext.translate(this.x() * -1, this.y() * -1);        
             }
@@ -221,6 +221,7 @@
         _drawCachedSceneCanvas: function(context) {
             context.save();
             this.getLayer()._applyTransform(this, context);
+            context._applyOpacity(this);
             context.drawImage(this._getCachedSceneCanvas()._canvas, 0, 0);
             context.restore();
         },
@@ -388,10 +389,16 @@
          * node.off('click.foo');
          */
         off: function(evtStr) {
-            var events = evtStr.split(SPACE),
+            var events = (evtStr || '').split(SPACE),
                 len = events.length,
                 n, t, event, parts, baseEvent, name;
 
+            if (!evtStr) {
+                // remove all events
+                for(t in this.eventListeners) {
+                    this._off(t);
+                }
+            }
             for(n = 0; n < len; n++) {
                 event = events[n];
                 parts = event.split(DOT);
@@ -643,7 +650,7 @@
          */
         shouldDrawHit: function(canvas) {
             var layer = this.getLayer();
-            return  ((canvas && canvas.isCache) || (layer && layer.hitGraphEnabled())) 
+            return  (canvas && canvas.isCache) || (layer && layer.hitGraphEnabled())
                 && this.isListening() && this.isVisible() && !Kinetic.isDragging();
         },
         /**
