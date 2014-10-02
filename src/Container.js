@@ -19,13 +19,13 @@
          *    return node.getClassName() === 'Circle';
          * });
          */
-        getChildren: function(predicate) {
-            if (!predicate) {
+        getChildren: function(filterFunc) {
+            if (!filterFunc) {
                 return this.children;
             } else {
                 var results = new Kinetic.Collection();
                 this.children.each(function(child){
-                    if (predicate(child)) {
+                    if (filterFunc(child)) {
                         results.push(child);
                     }
                 });
@@ -96,11 +96,11 @@
                 for (var i = 0; i < arguments.length; i++) {
                     this.add(arguments[i]);
                 }
-                return;
+                return this;
             }
             if (child.getParent()) {
                 child.moveTo(this);
-                return;
+                return this;
             }
             var children = this.children;
             this._validateAdd(child);
