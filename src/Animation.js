@@ -43,6 +43,7 @@
      *  if you don't need to redraw layer/layers on some frames.
      * @param {Kinetic.Layer|Array} [layers] layer(s) to be redrawn on each animation frame. Can be a layer, an array of layers, or null.
      *  Not specifying a node will result in no redraw.
+     * @param {Boolean} Draw hit and scene by default, alternatively just draw scene
      * @example
      * // move a node to the right at 50 pixels / second
      * var velocity = 50;
@@ -54,10 +55,11 @@
      *
      * anim.start();
      */
-    Kinetic.Animation = function(func, layers) {
+    Kinetic.Animation = function(func, layers, drawHit) {
         var Anim = Kinetic.Animation;
         this.func = func;
         this.setLayers(layers);
+        this.drawHit = drawHit !== false;
         this.id = Anim.animIdCounter++;
         this.frame = {
             time: 0,
@@ -236,7 +238,15 @@
 
         if (needRedraw) {
             for(key in layerHash) {
-                layerHash[key].draw();
+                // Draw scene and hit
+                if (this.drawHit === true) {
+                    layerHash[key].draw();
+                }
+                // Only draw scene
+                else {
+                    layerHash[key].drawScene();
+                }
+                
             } 
         }
     };
@@ -290,6 +300,31 @@
     };
 
     /**
+     * batch draw scene
+     * @method
+     * @memberof Kinetic.Base.prototype
+     */
+    Kinetic.BaseLayer.prototype.batchDrawScene = function() {
+        var that = this,
+            Anim = Kinetic.Animation;
+
+        if (!this.batchAnim) {
+            this.batchAnim = new Anim(function() {
+                if (that.lastBatchDrawTime && now() - that.lastBatchDrawTime > BATCH_DRAW_STOP_TIME_DIFF) {
+                    that.batchAnim.stop();
+                }
+            }, this, false);
+        }
+
+        this.lastBatchDrawTime = now();
+
+        if (!this.batchAnim.isRunning()) {
+            this.drawScene();
+            this.batchAnim.start();
+        }
+    };
+
+    /**
      * batch draw
      * @method
      * @memberof Kinetic.Stage.prototype
@@ -297,6 +332,17 @@
     Kinetic.Stage.prototype.batchDraw = function() {
         this.getChildren().each(function(layer) {
             layer.batchDraw();
+        });
+    };
+
+    /**
+     * batch draw scene
+     * @method
+     * @memberof Kinetic.Stage.prototype
+     */
+    Kinetic.Stage.prototype.batchDrawScene = function() {
+        this.getChildren().each(function(layer) {
+            layer.batchDrawScene();
         });
     };
 })(this);

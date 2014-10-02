@@ -122,4 +122,37 @@ suite('Animation', function() {
         assert.notEqual(draws, 6, 'should not be 6 draws');
 
     });
+
+    // ======================================================
+    test('layer batch draw scene', function() {
+        var stage = addStage();
+        var layer = new Kinetic.Layer();
+        var rect = new Kinetic.Rect({
+            x: 200,
+            y: 100,
+            width: 100,
+            height: 50,
+            fill: 'green',
+            stroke: 'black',
+            strokeWidth: 4
+        });
+
+        layer.add(rect);
+        stage.add(layer);
+
+        layer.draw();
+
+        var hitData = layer.hitCanvas.toDataURL();
+
+        rect.setAttrs({
+            x: 300,
+            y: 200,
+            width: 200,
+            height: 150
+        });
+
+        layer.batchDrawScene();
+
+        assert.equal(hitData, layer.hitCanvas.toDataURL(), 'hit canvas data should be the same');
+    });
 });
