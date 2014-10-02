@@ -172,6 +172,35 @@ suite('Circle', function(){
   });
 
   // ======================================================
+  test('attrs sync', function() {
+      var stage = addStage();
+      var layer = new Kinetic.Layer();
+      var circle = new Kinetic.Circle({
+          x: stage.getWidth() / 2,
+          y: stage.getHeight() / 2,
+          radius: 70,
+          fill: 'green',
+          stroke: 'black',
+          strokeWidth: 4
+      });
+
+      layer.add(circle);
+      stage.add(layer);
+
+      assert.equal(circle.getWidth(), 140);
+      assert.equal(circle.attrs.height, 140);
+      assert.equal(circle.getHeight(), 140);
+
+      circle.setWidth(100);
+      assert.equal(circle.radius(), 50);
+      assert.equal(circle.getHeight(), 100);
+
+      circle.setHeight(120);
+      assert.equal(circle.radius(), 60);
+      assert.equal(circle.getHeight(), 120);
+  });
+
+  // ======================================================
   test('set fill after instantiation', function() {
       var stage = addStage();
       var layer = new Kinetic.Layer();

@@ -162,7 +162,7 @@ var Kinetic = {};
          * @memberof Kinetic
          * @augments Kinetic.Container
          * @param {Object} config
-         * @param {String|DomElement} config.container Container id or DOM element
+         * @param {String|Element} config.container Container id or DOM element
          * @@nodeParams
          * @example
          * var stage = new Kinetic.Stage({
@@ -258,12 +258,10 @@ var Kinetic = {};
 
             // if DD is not included with the build, then
             // drag and drop is not even possible
-            if (!dd) {
-                return false;
-            }
-            // if DD is included with the build
-            else {
+            if (dd) {
                 return dd.isDragging;
+            } else {
+                return false;
             }
         },
         /**
@@ -277,12 +275,10 @@ var Kinetic = {};
 
             // if DD is not included with the build, then
             // drag and drop is not even possible
-            if (!dd) {
-                return false;
-            }
-            // if DD is included with the build
-            else {
+            if (dd) {
                 return !!dd.node;
+            } else {
+                return false;
             }
         },
         _addId: function(node, id) {
@@ -297,10 +293,15 @@ var Kinetic = {};
         },
         _addName: function(node, name) {
             if(name !== undefined) {
-                if(this.names[name] === undefined) {
-                    this.names[name] = [];
+                var names = name.split(/\W+/g);
+                for(var n = 0; n < names.length; n++) {
+                    if (names[n]) {
+                        if(this.names[names[n]] === undefined) {
+                            this.names[names[n]] = [];
+                        }
+                        this.names[names[n]].push(node);
+                    }
                 }
-                this.names[name].push(node);
             }
         },
         _removeName: function(name, _id) {
@@ -343,8 +344,8 @@ var Kinetic = {};
                 // adding mobile flab
                 mobile: mobile,
                 ieMobile: ieMobile  // If this is true (i.e., WP8), then Kinetic touch events are executed instead of equivalent Kinetic mouse events
-            };      
-        }, 
+            };
+        },
         // user agent  
         UA: undefined
     };
@@ -383,9 +384,8 @@ var Kinetic = {};
             // like Node.
             var Canvas = require('canvas');
             var jsdom = require('jsdom').jsdom;
-            var doc = jsdom('<!DOCTYPE html><html><head></head><body></body></html>');
 
-            Kinetic.document = doc;
+            Kinetic.document = jsdom('<!DOCTYPE html><html><head></head><body></body></html>');
             Kinetic.window = Kinetic.document.createWindow();
             Kinetic.window.Image = Canvas.Image;
             Kinetic._nodeCanvas = Canvas;

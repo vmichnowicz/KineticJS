@@ -38,17 +38,24 @@
         var that = this,
             node = config.node,
             nodeId = node._id,
-            duration = config.duration || 1,
+            duration,
             easing = config.easing || Kinetic.Easings.Linear,
             yoyo = !!config.yoyo,
             key;
 
+        if (typeof config.duration === 'undefined') {
+            duration = 1;
+        } else if (config.duration === 0) {  // zero is bad value for duration
+            duration = 0.001;
+        } else {
+            duration = config.duration;
+        }
         this.node = node;
         this._id = idCounter++;
 
         this.anim = new Kinetic.Animation(function() {
             that.tween.onEnterFrame();
-        }, node.getLayer());
+        }, node.getLayer() || ((node instanceof Kinetic.Stage) ? node.getLayers() : null));
 
         this.tween = new Tween(key, function(i) {
             that._tweenFunc(i);
@@ -197,7 +204,6 @@
          * @returns {Tween}
          */
         reset: function() {
-            var node = this.node;
             this.tween.reset();
             return this;
         },
@@ -209,7 +215,6 @@
          * @returns {Tween}
          */
         seek: function(t) {
-            var node = this.node;
             this.tween.seek(t * 1000);
             return this;
         },
@@ -230,7 +235,6 @@
          * @returns {Tween}
          */
         finish: function() {
-            var node = this.node;
             this.tween.finish();
             return this;
         },

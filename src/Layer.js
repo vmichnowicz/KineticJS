@@ -80,15 +80,13 @@
                         }
                     }
                     // if no shape, and no antialiased pixel, we should end searching 
-                    if (!continueSearch) {
-                        return;
-                    } else {
+                    if (continueSearch) {
                         spiralSearchDistance += 1;
+                    } else {
+                        return;
                     }
                 }
-                
-            }
-            else {
+            } else {
                 return null;
             }
         },
@@ -109,7 +107,7 @@
             ];
         },
         _getIntersection: function(pos) {
-            var p = this._getImageData(pos.x, pos.y),
+            var p = this.hitCanvas.context.getImageData(pos.x, pos.y, 1, 1).data,
                 p3 = p[3],
                 colorKey, shape;
 
@@ -207,7 +205,7 @@
          * @name enableHitGraph
          * @method
          * @memberof Kinetic.Layer.prototype
-         * @returns {Node}
+         * @returns {Layer}
          */
         enableHitGraph: function() {
             this.setHitGraphEnabled(true);
@@ -218,7 +216,7 @@
          * @name disableHitGraph
          * @method
          * @memberof Kinetic.Layer.prototype
-         * @returns {Node}
+         * @returns {Layer}
          */
         disableHitGraph: function() {
             this.setHitGraphEnabled(false);
@@ -251,6 +249,5 @@
      * // enable hit graph
      * layer.hitGraphEnabled(true);
      */
-
     Kinetic.Collection.mapMethods(Kinetic.Layer);
 })();
